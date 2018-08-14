@@ -3,6 +3,8 @@ package com.midsummer.w3jl.service
 import com.midsummer.w3jl.entity.W3JLBip39Wallet
 import com.midsummer.w3jl.entity.W3JLCredential
 import com.midsummer.w3jl.entity.W3JLWallet
+import io.reactivex.Observable
+import io.reactivex.Single
 import org.json.JSONStringer
 import org.web3j.crypto.Bip39Wallet
 import org.web3j.crypto.CipherException
@@ -53,7 +55,7 @@ interface W3JLRepository {
     fun transfer(privateKey: String, from: String, to: String, amount: BigInteger): String?
 
 
-    fun createWalletFromMnemonic(mnemonics: String, password: String?) : W3JLWallet
+    fun createWalletFromMnemonic(mnemonics: String, password: String?) : Single<W3JLWallet>
     fun createWalletFromPrivateKey(privateKey: String, password: String?) : W3JLWallet
     fun createWalletFromJsonString(jsonString: String, password: String?) : W3JLWallet
 

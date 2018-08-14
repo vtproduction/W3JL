@@ -3,15 +3,15 @@ package com.midsummer.sample
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import com.midsummer.w3jl.entity.W3JLBip39Wallet
 import com.midsummer.w3jl.service.W3JLFactory
-import com.midsummer.w3jl.test.TestNova
-import com.midsummer.w3jl.test.W3JL
-import com.midsummer.w3jl.util.FileUtil
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
-
+    private val compositeDisposable = CompositeDisposable()
     val TAG = "MAINNNN"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,9 +50,19 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG,c.toString())
         Log.d(TAG,str)*/
 
+
         val mnemonic = "cause round witness insect capable what school fire bread truly auto enable"
-        val w1 = w3JL.createWalletFromMnemonic(mnemonic, password)
-        Log.d(TAG, w1.toString())
+        compositeDisposable.add(w3JL.createWalletFromMnemonic(mnemonic, null)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .delay(5, TimeUnit.SECONDS)
+                .subscribe({
+                    Log.d(TAG,"wallet: ${it.toString()}")
+                },{
+                    Log.d(TAG,"error: ${it.localizedMessage}")
+                }))
+
+        //Log.d(TAG, w1.toString())
 
         /*val privateKey = "ee0ba891fd4ec42e967dcd26306a7352228e6dc71d1211a95ab3dc1c208b61bd"
         val w1 = w3JL.createWalletFromPrivateKey(privateKey, "")
@@ -62,5 +72,10 @@ class MainActivity : AppCompatActivity() {
         val w1 = w3JL.createWalletFromJsonString(json, "")
 
         Log.d(TAG, w1.toString())*/
+    }
+
+    public override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.clear()
     }
 }

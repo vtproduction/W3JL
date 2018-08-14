@@ -1,20 +1,22 @@
 package com.midsummer.w3jl.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.google.gson.Gson
 import com.midsummer.w3jl.entity.W3JLBip39Wallet
 import com.midsummer.w3jl.entity.W3JLCredential
 import com.midsummer.w3jl.entity.W3JLWallet
-import com.midsummer.w3jl.util.FileUtil
 import io.github.novacrypto.bip39.MnemonicGenerator
 import io.github.novacrypto.bip39.Words
 import io.github.novacrypto.bip39.wordlists.English
+import io.reactivex.Observable
+import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import org.web3j.crypto.*
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.utils.Numeric
+
+
 import java.io.File
 import java.io.IOException
 import java.math.BigInteger
@@ -136,19 +138,32 @@ class W3JL(var web3j: Web3j, var filePath: File) : W3JLRepository{
         return ethSendTransaction.transactionHash
     }
 
+    @Throws(Exception::class)
+    override fun createWalletFromMnemonic(mnemonics: String, password: String?): Single<W3JLWallet> {
+        return Single.create { emitter  ->
+            /*if (password == null){
+                emitter.onError(Exception("dm dm dm"))
+            }else*/
+            try {
+                val seed = MnemonicUtils.generateSeed(mnemonics, password)
+                val keyPair = ECKeyPair.create(Hash.sha256(seed))
+                val tmpWallet = Wallet.createLight(password, keyPair)
+                val wallet = W3JLWallet()
+                wallet.mnemonic = mnemonics
+                wallet.source = W3JLWallet.Source.MNEMONIC
+                wallet.address = "0x${tmpWallet.address}"
+                wallet.privateKey = keyPair.privateKey.toString(RADIX)
+                wallet.jsonSource = objectMapper.writeValueAsString(tmpWallet)
+                wallet.createAt = Calendar.getInstance().timeInMillis
+                emitter.onSuccess(wallet)
+            }catch (e : Exception){
+                emitter.onError(e)
+            }
+        }
 
-    override fun createWalletFromMnemonic(mnemonics: String, password: String?): W3JLWallet {
-        val seed = MnemonicUtils.generateSeed(mnemonics, password)
-        val keyPair = ECKeyPair.create(Hash.sha256(seed))
-        val tmpWallet = Wallet.createLight(password, keyPair)
-        val wallet = W3JLWallet()
-        wallet.mnemonic = mnemonics
-        wallet.source = W3JLWallet.Source.MNEMONIC
-        wallet.address = "0x${tmpWallet.address}"
-        wallet.privateKey = keyPair.privateKey.toString(RADIX)
-        wallet.jsonSource = Gson().toJson(tmpWallet)
-        wallet.createAt = Calendar.getInstance().timeInMillis
-        return wallet
+
+
+
     }
 
     override fun createWalletFromPrivateKey(privateKey: String, password: String?): W3JLWallet {

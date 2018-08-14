@@ -36,4 +36,5 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation ('org.web3j:core:3.3.1-android')
     implementation 'io.github.novacrypto:BIP39:0.1.9'
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.6"
 }

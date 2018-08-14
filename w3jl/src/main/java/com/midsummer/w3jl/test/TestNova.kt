@@ -3,8 +3,6 @@ package com.midsummer.w3jl.test
 import io.github.novacrypto.bip39.wordlists.English
 import io.github.novacrypto.bip39.MnemonicGenerator
 import io.github.novacrypto.bip39.Words
-import org.web3j.crypto.MnemonicUtils
-import org.web3j.crypto.WalletUtils
 import java.security.SecureRandom
 
 
@@ -19,9 +17,11 @@ class TestNova {
         val entropy = ByteArray(Words.TWELVE.byteLength())
         SecureRandom().nextBytes(entropy)
         MnemonicGenerator(English.INSTANCE)
-                .createMnemonic(entropy, MnemonicGenerator.Target {
+                .createMnemonic(
+                        entropy
+                ) {
                     sb.append(it)
-                })
+                }
 
 
         return sb.toString()

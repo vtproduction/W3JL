@@ -125,6 +125,7 @@ class W3JLWallet(var filePath: File) : W3JLWalletRepository{
                 val wallet = W3JLWallet()
                 if (!WalletUtils.isValidPrivateKey(privateKey)){
                     emitter.onError(Exception("Invalid private key"))
+                    return@create
                 }
                 wallet.source = W3JLWallet.Source.PRIVATE_KEY
                 val c = Credentials.create(privateKey)

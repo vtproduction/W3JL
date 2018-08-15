@@ -1,9 +1,7 @@
 package com.midsummer.w3jl.service
 
 import android.content.Context
-import org.web3j.protocol.Web3j
 import org.web3j.protocol.Web3jFactory
-import org.web3j.protocol.Web3jService
 import org.web3j.protocol.http.HttpService
 import java.io.File
 
@@ -33,8 +31,12 @@ class W3JLFactory {
     }
 
 
-    fun build() : W3JLRepository {
+    fun buildW3JL() : W3JLWalletRepository {
+        return W3JLWallet(keyStoreFile)
+    }
+
+    fun buildW3JLEth() : W3JLEthRepository {
         var web3j = Web3jFactory.build(if (networkProvider.isEmpty()) HttpService() else HttpService(networkProvider) )
-        return W3JL(web3j, keyStoreFile)
+        return W3JLEth(web3j)
     }
 }

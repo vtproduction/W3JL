@@ -7,7 +7,9 @@ package com.midsummer.w3jl.entity
  * Happy coding ^_^
  */
 class W3JLWallet {
-    constructor()
+    init {
+
+    }
 
     enum class Source{
         PRIVATE_KEY,

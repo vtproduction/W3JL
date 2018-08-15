@@ -8,18 +8,12 @@ import com.midsummer.w3jl.entity.W3JLWallet
 import io.github.novacrypto.bip39.MnemonicGenerator
 import io.github.novacrypto.bip39.Words
 import io.github.novacrypto.bip39.wordlists.English
-import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
 import org.web3j.crypto.*
-import org.web3j.protocol.Web3j
-import org.web3j.protocol.core.DefaultBlockParameterName
-import org.web3j.utils.Numeric
 
 
 import java.io.File
 import java.io.IOException
-import java.math.BigInteger
 import java.security.SecureRandom
 import java.util.*
 
@@ -29,10 +23,10 @@ import java.util.*
  * Ping me at nienbkict@gmail.com
  * Happy coding ^_^
  */
-class W3JL(var web3j: Web3j, var filePath: File) : W3JLRepository{
+class W3JLWallet(var filePath: File) : W3JLWalletRepository{
     private val RADIX = 16
-    private val GAS_PRICE = BigInteger.valueOf(20_000_000_000L)
-    private val GAS_LIMIT = BigInteger.valueOf(4300000)
+    private val PARAM_N = 8192
+    private val PARAM_P = 1
     private val objectMapper = jacksonObjectMapper()
 
 
@@ -102,52 +96,15 @@ class W3JL(var web3j: Web3j, var filePath: File) : W3JLRepository{
         return credentials.address
     }
 
-    override fun transfer(password: String, walletFile: File, from: String, to: String, amount: BigInteger): String? {
-        val credentials = WalletUtils.loadCredentials(password, walletFile) ?: return null
 
-        val ethGetTransactionCount = web3j.ethGetTransactionCount(
-                from, DefaultBlockParameterName.LATEST).sendAsync().get()
-
-        val nonce = ethGetTransactionCount.transactionCount
-        println(nonce)
-
-        val rawTransaction = RawTransaction.createEtherTransaction(
-                nonce, GAS_PRICE, GAS_LIMIT, to, amount)
-        val signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials)
-        val hexValue = Numeric.toHexString(signedMessage)
-
-        val ethSendTransaction = web3j.ethSendRawTransaction(hexValue).sendAsync().get()
-        return ethSendTransaction.transactionHash
-    }
-
-    override fun transfer(privateKey: String, from: String, to: String, amount: BigInteger): String? {
-        val credentials = loadCredentialFromPrivateKey(privateKey) ?: return null
-
-        val ethGetTransactionCount = web3j.ethGetTransactionCount(
-                from, DefaultBlockParameterName.LATEST).sendAsync().get()
-
-        val nonce = ethGetTransactionCount.transactionCount
-        println(nonce)
-
-        val rawTransaction = RawTransaction.createEtherTransaction(
-                nonce, GAS_PRICE, GAS_LIMIT, to, amount)
-        val signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials)
-        val hexValue = Numeric.toHexString(signedMessage)
-
-        val ethSendTransaction = web3j.ethSendRawTransaction(hexValue).sendAsync().get()
-        return ethSendTransaction.transactionHash
-    }
 
     @Throws(Exception::class)
     override fun createWalletFromMnemonic(mnemonics: String, password: String?): Single<W3JLWallet> {
         return Single.create { emitter  ->
-            /*if (password == null){
-                emitter.onError(Exception("dm dm dm"))
-            }else*/
             try {
                 val seed = MnemonicUtils.generateSeed(mnemonics, password)
                 val keyPair = ECKeyPair.create(Hash.sha256(seed))
-                val tmpWallet = Wallet.createLight(password, keyPair)
+                val tmpWallet = Wallet.create(password, keyPair,PARAM_N,PARAM_P)
                 val wallet = W3JLWallet()
                 wallet.mnemonic = mnemonics
                 wallet.source = W3JLWallet.Source.MNEMONIC
@@ -160,36 +117,46 @@ class W3JL(var web3j: Web3j, var filePath: File) : W3JLRepository{
                 emitter.onError(e)
             }
         }
-
-
-
-
     }
 
-    override fun createWalletFromPrivateKey(privateKey: String, password: String?): W3JLWallet {
-        val wallet = W3JLWallet()
-        if (!WalletUtils.isValidPrivateKey(privateKey)){
-            return wallet
+    override fun createWalletFromPrivateKey(privateKey: String, password: String?): Single<W3JLWallet> {
+        return Single.create{ emitter ->
+            try {
+                val wallet = W3JLWallet()
+                if (!WalletUtils.isValidPrivateKey(privateKey)){
+                    emitter.onError(Exception("Invalid private key"))
+                }
+                wallet.source = W3JLWallet.Source.PRIVATE_KEY
+                val c = Credentials.create(privateKey)
+                val tmpWallet = Wallet.create(password, c.ecKeyPair,PARAM_N,PARAM_P)
+                wallet.address = c.address
+                wallet.privateKey = privateKey
+                wallet.jsonSource = objectMapper.writeValueAsString(tmpWallet)
+                wallet.createAt = Calendar.getInstance().timeInMillis
+                emitter.onSuccess(wallet)
+            }catch (e : Exception){
+                emitter.onError(e)
+            }
         }
-        wallet.source = W3JLWallet.Source.PRIVATE_KEY
-        val c = Credentials.create(privateKey)
-        val tmpWallet = Wallet.createLight(password, c.ecKeyPair)
-        wallet.address = c.address
-        wallet.privateKey = privateKey
-        wallet.jsonSource = objectMapper.writeValueAsString(tmpWallet)
-        wallet.createAt = Calendar.getInstance().timeInMillis
-        return wallet
+
     }
 
-    override fun createWalletFromJsonString(jsonString: String, password: String?): W3JLWallet {
-        val walletFile : WalletFile = objectMapper.readValue(jsonString)
-        val c = Credentials.create(Wallet.decrypt(password, walletFile))
-        val wallet = W3JLWallet()
-        wallet.source = W3JLWallet.Source.JSON
-        wallet.address = c.address
-        wallet.privateKey = c.ecKeyPair.privateKey.toString(RADIX)
-        wallet.jsonSource = jsonString
-        wallet.createAt = Calendar.getInstance().timeInMillis
-        return wallet
+    override fun createWalletFromJsonString(jsonString: String, password: String?): Single<W3JLWallet> {
+        return Single.create{ emitter ->
+            try {
+                val walletFile : WalletFile = objectMapper.readValue(jsonString)
+                val c = Credentials.create(Wallet.decrypt(password, walletFile))
+                val wallet = W3JLWallet()
+                wallet.source = W3JLWallet.Source.JSON
+                wallet.address = c.address
+                wallet.privateKey = c.ecKeyPair.privateKey.toString(RADIX)
+                wallet.jsonSource = jsonString
+                wallet.createAt = Calendar.getInstance().timeInMillis
+                emitter.onSuccess(wallet)
+            }catch (e : Exception){
+                emitter.onError(e)
+            }
+        }
+
     }
 }

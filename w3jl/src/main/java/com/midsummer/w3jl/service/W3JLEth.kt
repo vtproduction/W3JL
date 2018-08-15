@@ -87,18 +87,14 @@ class W3JLEth(var web3j: Web3j) : W3JLEthRepository{
                     emitter.onError(Exception("Invalid credential!"))
                     return@create
                 }
-
                 val ethGetTransactionCount = web3j.ethGetTransactionCount(
                         from, DefaultBlockParameterName.LATEST).sendAsync().get()
-
                 val nonce = ethGetTransactionCount.transactionCount
-                println(nonce)
-
+                //println(nonce)
                 val rawTransaction = RawTransaction.createEtherTransaction(
                         nonce, GAS_PRICE, GAS_LIMIT, to, amount)
                 val signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials)
                 val hexValue = Numeric.toHexString(signedMessage)
-
                 val ethSendTransaction = web3j.ethSendRawTransaction(hexValue).sendAsync().get()
                 emitter.onSuccess(ethSendTransaction.transactionHash)
             }catch (e : Exception){

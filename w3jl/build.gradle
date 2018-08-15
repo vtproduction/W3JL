@@ -38,4 +38,5 @@ dependencies {
     implementation 'io.github.novacrypto:BIP39:0.1.9'
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.6"
     implementation 'io.reactivex.rxjava2:rxkotlin:2.2.0'
+    implementation "org.ethereum:geth:1.7.0"
 }

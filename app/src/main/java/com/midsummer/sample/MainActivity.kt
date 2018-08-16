@@ -3,7 +3,10 @@ package com.midsummer.sample
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import com.midsummer.w3jl.entity.W3JLTokenInfo
+import com.midsummer.w3jl.erc20Contract.TokenRepository
 import com.midsummer.w3jl.service.W3JLFactory
+import com.midsummer.w3jl.util.BalanceUtil
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -58,6 +61,22 @@ class MainActivity : AppCompatActivity() {
                 },{
                     Log.d(TAG,"balance Error: ${it.localizedMessage}")
                 }))
+
+
+        val tokenInfo = W3JLTokenInfo()
+        tokenInfo.address = "0x86a85ce4CC3FA15a4C24Ae720990d998A65B4917"
+        tokenInfo.name = "Venus"
+        tokenInfo.symbol = "VNS"
+        tokenInfo.decimals = 18
+
+        val tokenOwnerAddress =  "0x95b52bcd93D4A87a7E98975F2245a57789a2D34d"
+        val tokenRepository = W3JLFactory()
+                .withContext(this)
+                .withNetworkProvider("https://ropsten.infura.io/v3/95fa3a86534344ee9d1bf00e2b0d6d06")
+                .buildTokenInfo()
+
+        val balanceDecimal = tokenRepository.getBalance(tokenOwnerAddress, tokenInfo)
+        Log.d(TAG,"getTokenBalace ${BalanceUtil.weiToEth(balanceDecimal!!, 3)}")
 
     }
 

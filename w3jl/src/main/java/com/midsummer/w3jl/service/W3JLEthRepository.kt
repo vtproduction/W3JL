@@ -26,4 +26,6 @@ interface W3JLEthRepository {
 
     @Throws(InterruptedException::class, ExecutionException::class)
     fun transfer(privateKey: String, from: String, to: String, amount: BigInteger): Single<String>
+
+
 }

@@ -26,6 +26,13 @@ object BalanceUtil{
         return eth_scaled.toString()
     }
 
+    fun weiToEth(wei: BigDecimal, sigFig: Int): String {
+        val eth = Convert.fromWei(wei, Convert.Unit.ETHER)
+        val scale = sigFig - eth.precision() + eth.scale()
+        val eth_scaled = eth.setScale(scale, RoundingMode.HALF_UP)
+        return eth_scaled.toString()
+    }
+
     fun ethToUsd(priceUsd: String, ethBalance: String): String {
         var usd = BigDecimal(ethBalance).multiply(BigDecimal(priceUsd))
         usd = usd.setScale(2, RoundingMode.CEILING)
@@ -47,6 +54,7 @@ object BalanceUtil{
     }
 
     fun gweiToWei(gwei: BigDecimal): BigInteger {
+
         return Convert.toWei(gwei, Convert.Unit.GWEI).toBigInteger()
     }
 

@@ -1,6 +1,7 @@
 package com.midsummer.w3jl.service
 
 import android.content.Context
+import com.midsummer.w3jl.erc20Contract.TokenRepository
 import org.web3j.protocol.Web3jFactory
 import org.web3j.protocol.http.HttpService
 import java.io.File
@@ -36,7 +37,12 @@ class W3JLFactory {
     }
 
     fun buildW3JLEth() : W3JLEthRepository {
-        var web3j = Web3jFactory.build(if (networkProvider.isEmpty()) HttpService() else HttpService(networkProvider) )
+        val web3j = Web3jFactory.build(if (networkProvider.isEmpty()) HttpService() else HttpService(networkProvider) )
         return W3JLEth(web3j)
+    }
+
+    fun buildTokenInfo() : TokenRepository {
+        val web3j = Web3jFactory.build(if (networkProvider.isEmpty()) HttpService() else HttpService(networkProvider) )
+        return TokenRepository(web3j)
     }
 }

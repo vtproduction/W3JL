@@ -1,13 +1,10 @@
 package com.midsummer.w3jl.service
 
 import android.content.Context
-import android.os.Build.VERSION_CODES.N
-import android.os.Build.VERSION_CODES.P
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.ethereum.geth.*
 import org.web3j.crypto.ECKeyPair
 import org.web3j.crypto.Wallet
-import org.web3j.crypto.WalletFile
 import org.web3j.protocol.Web3j
 import java.io.File
 import java.math.BigInteger
@@ -19,7 +16,7 @@ import java.nio.charset.Charset
  * Ping me at nienbkict@gmail.com
  * Happy coding ^_^
  */
-class W3JLGeth(web3j: Web3j, context: Context) : W3JLGethRepository{
+class GethService(web3j: Web3j, context: Context) : GethRepository{
     var keyStore: KeyStore
     private val N = 1 shl 9
     private val P = 1

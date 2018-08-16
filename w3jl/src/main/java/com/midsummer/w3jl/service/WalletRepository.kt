@@ -16,7 +16,7 @@ import java.io.IOException
  * Ping me at nienbkict@gmail.com
  * Happy coding ^_^
  */
-interface W3JLWalletRepository {
+interface WalletRepository {
 
     @Throws(IOException::class)
     fun createBip39WalletWithPassword(password: String): W3JLBip39Wallet
@@ -45,7 +45,7 @@ interface W3JLWalletRepository {
     fun getAddressFromPrivateKey(privateKey: String): String?
 
 
-
+    fun createHDWalletFromMnemonic(mnemonics: String) : Single<W3JLWallet>
     fun createWalletFromMnemonic(mnemonics: String, password: String?) : Single<W3JLWallet>
     fun createWalletFromPrivateKey(privateKey: String, password: String?) : Single<W3JLWallet>
     fun createWalletFromJsonString(jsonString: String, password: String?) : Single<W3JLWallet>

@@ -10,6 +10,9 @@ import io.github.novacrypto.bip39.MnemonicGenerator
 import io.github.novacrypto.bip39.Words
 import io.github.novacrypto.bip39.wordlists.English
 import io.reactivex.Single
+import org.bitcoinj.crypto.ChildNumber
+import org.bitcoinj.crypto.HDKeyDerivation
+import org.bitcoinj.wallet.DeterministicSeed
 import org.web3j.crypto.*
 
 
@@ -24,7 +27,7 @@ import java.util.*
  * Ping me at nienbkict@gmail.com
  * Happy coding ^_^
  */
-class W3JLWallet(var filePath: File) : W3JLWalletRepository{
+class WalletService(var filePath: File) : WalletRepository{
     private val RADIX = 16
     private val PARAM_N = 8192
     private val PARAM_P = 1
@@ -97,7 +100,45 @@ class W3JLWallet(var filePath: File) : W3JLWalletRepository{
         return credentials.address
     }
 
-
+    private val ETH_TYPE = "m/44'/60'/0'/0/0"
+    override fun createHDWalletFromMnemonic(mnemonics: String): Single<W3JLWallet> {
+        return Single.create { emitter  ->
+            try {
+                val pathArray = ETH_TYPE.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                val passphrase = ""
+                val list = mnemonics.split(" ")
+                val creationTimeSeconds = System.currentTimeMillis() / 1000
+                val ds = DeterministicSeed(list, null, passphrase, creationTimeSeconds)
+                val seedBytes = ds.seedBytes
+                var dkKey = HDKeyDerivation.createMasterPrivateKey(seedBytes)
+                for (i in 1 until pathArray.size) {
+                    val childNumber: ChildNumber
+                    if (pathArray[i].endsWith("'")) {
+                        val number = Integer.parseInt(pathArray[i].substring(0,
+                                pathArray[i].length - 1))
+                        childNumber = ChildNumber(number, true)
+                    } else {
+                        val number = Integer.parseInt(pathArray[i])
+                        childNumber = ChildNumber(number, false)
+                    }
+                    dkKey = HDKeyDerivation.deriveChildKey(dkKey, childNumber)
+                }
+                val keyPair = ECKeyPair.create(dkKey.privKeyBytes)
+                val c = Credentials.create(keyPair.privateKey.toString(RADIX))
+                val wallet = W3JLWallet()
+                wallet.mnemonic = mnemonics
+                wallet.source = W3JLWallet.Source.MNEMONIC
+                wallet.address = c.address
+                wallet.privateKey = keyPair.privateKey.toString(RADIX)
+                wallet.publicKey = keyPair.publicKey.toString(RADIX)
+                wallet.jsonSource = ""
+                wallet.createAt = Calendar.getInstance().timeInMillis
+                emitter.onSuccess(wallet)
+            }catch (e : Exception){
+                emitter.onError(e)
+            }
+        }
+    }
 
     @Throws(Exception::class)
     override fun createWalletFromMnemonic(mnemonics: String, password: String?): Single<W3JLWallet> {

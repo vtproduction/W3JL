@@ -28,7 +28,7 @@ class W3JLWallet {
 
 
     override fun toString(): String {
-        return "W3JLWallet(source=$source, address='$address', mnemonic='$mnemonic', privateKey='$privateKey', publicKey='$publicKey', jsonSource='$jsonSource', createAt=$createAt)"
+        return "WalletService(source=$source, address='$address', mnemonic='$mnemonic', privateKey='$privateKey', publicKey='$publicKey', jsonSource='$jsonSource', createAt=$createAt)"
     }
 
 

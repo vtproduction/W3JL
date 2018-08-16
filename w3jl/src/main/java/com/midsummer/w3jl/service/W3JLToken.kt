@@ -8,18 +8,13 @@ import org.web3j.abi.TypeReference
 import org.web3j.abi.datatypes.Address
 import org.web3j.abi.datatypes.Bool
 import org.web3j.abi.datatypes.Function
-import org.web3j.abi.datatypes.Type
 import org.web3j.abi.datatypes.generated.Uint256
-import org.web3j.crypto.Wallet
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.core.methods.request.Transaction
-import org.web3j.protocol.core.methods.response.EthGetTransactionCount
 import org.web3j.utils.Numeric
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.security.PrivateKey
-import java.time.temporal.TemporalAmount
 import java.util.*
 
 /**
@@ -76,7 +71,14 @@ class W3JLToken(var web3j: Web3j, var context : Context) {
 
     private val GAS_PRICE = BigInteger.valueOf(20_000_000_000L)
     private val GAS_LIMIT = BigInteger.valueOf(4300000)
+    fun balanceOf(owner: String): Function {
+        return Function(
+                "balanceOf",
+                listOf(Address(owner)),
+                listOf(object : TypeReference<Uint256>() {
 
+                }))
+    }
     fun createTokenTransfer(from : String,
                             to: String,
                             privateKey : String,
@@ -86,7 +88,7 @@ class W3JLToken(var web3j: Web3j, var context : Context) {
         val nonce = web3j
                 .ethGetTransactionCount(from, DefaultBlockParameterName.LATEST)
                 .sendAsync().get().transactionCount
-        val signedMessage = W3JLGeth(web3j, context)
+        val signedMessage = GethService(web3j, context)
                 .signTransaction(from, privateKey, contractAddress, BigInteger.valueOf(0), GAS_PRICE, GAS_LIMIT, nonce.toLong(), data, 3)
         return web3j
                 .ethSendRawTransaction(Numeric.toHexString(signedMessage))

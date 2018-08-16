@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutionException
  * Ping me at nienbkict@gmail.com
  * Happy coding ^_^
  */
-interface W3JLEthRepository {
+interface EthRepository {
 
     fun getAccountBalance(address: String) : Single<BigInteger>
 

@@ -4,10 +4,7 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import com.midsummer.w3jl.entity.W3JLTokenInfo
-import com.midsummer.w3jl.erc20Contract.TokenRepository
-import com.midsummer.w3jl.hdWallet.EthMnemonic
 import com.midsummer.w3jl.service.W3JLFactory
-import com.midsummer.w3jl.test.TestKethe
 import com.midsummer.w3jl.util.BalanceUtil
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -42,23 +39,11 @@ class MainActivity : AppCompatActivity() {
         /*val kethe = TestKethe()
         Log.d(TAG, "kethe key: ${kethe.createPrivateKey(mnemonic)}")*/
 
-        val list : MutableList<String> = mutableListOf()
-        list.add("drama")
-        list.add("print")
-        list.add("suspect")
-        list.add("patrol")
-        list.add("seek")
-        list.add("estate")
-        list.add("thrive")
-        list.add("since")
-        list.add("remind")
-        list.add("march")
-        list.add("letter")
-        list.add("era")
-        val ethMnemonic = EthMnemonic()
-        Log.d(TAG, "Wallet: ${ethMnemonic.mNemonicToPrivateKey(mnemonic)}")
 
-        compositeDisposable.add(w3JL.createWalletFromMnemonic(mnemonic, "999")
+
+
+
+        compositeDisposable.add(w3JL.createHDWalletFromMnemonic(mnemonic)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .delay(5, TimeUnit.SECONDS)

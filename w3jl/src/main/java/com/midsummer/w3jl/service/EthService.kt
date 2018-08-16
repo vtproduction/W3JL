@@ -1,19 +1,18 @@
 package com.midsummer.w3jl.service
 
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.midsummer.w3jl.entity.W3JLWallet
 import com.midsummer.w3jl.util.BalanceUtil
 import io.reactivex.Single
+import org.web3j.abi.FunctionReturnDecoder
+import org.web3j.abi.datatypes.generated.Uint256
 import org.web3j.crypto.*
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.core.methods.response.EthGetBalance
 import org.web3j.protocol.core.methods.response.EthGetTransactionCount
-import org.web3j.tx.ManagedTransaction.GAS_PRICE
 import org.web3j.utils.Numeric
 import java.io.File
+import java.math.BigDecimal
 import java.math.BigInteger
-import java.util.*
 
 /**
  * Created by NienLe on 15,August,2018
@@ -21,21 +20,21 @@ import java.util.*
  * Ping me at nienbkict@gmail.com
  * Happy coding ^_^
  */
-class W3JLEth(var web3j: Web3j) : W3JLEthRepository{
+class EthService(var web3j: Web3j) : EthRepository{
 
     private val GAS_PRICE = BigInteger.valueOf(20_000_000_000L)
     private val GAS_LIMIT = BigInteger.valueOf(4300000)
     override fun getAccountBalance(address: String): Single<BigInteger> {
         return Single.create{ emitter ->
             try {
-                if(WalletUtils.isValidAddress(address)){
-                    emitter.onError(Exception("Invalid Address"))
-                }else{
-                    val ethGetBalance : EthGetBalance = web3j
-                            .ethGetBalance(address, DefaultBlockParameterName.LATEST)
-                            .sendAsync()
-                            .get()
-                    emitter.onSuccess(ethGetBalance.balance)
+                val function = balanceOf(wallet)
+                val responseValue = callSmartContractFunction(function, tokenInfo.address, wallet)
+                val response = FunctionReturnDecoder.decode(
+                        responseValue, function.outputParameters)
+                return if (response.size == 1) {
+                    BigDecimal((response[0] as Uint256).value)
+                } else {
+                    null
                 }
             }catch (e : Exception){
                 emitter.onError(e)

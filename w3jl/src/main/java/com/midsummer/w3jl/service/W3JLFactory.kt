@@ -32,13 +32,13 @@ class W3JLFactory {
     }
 
 
-    fun buildW3JL() : W3JLWalletRepository {
-        return W3JLWallet(keyStoreFile)
+    fun buildW3JL() : WalletRepository {
+        return WalletService(keyStoreFile)
     }
 
-    fun buildW3JLEth() : W3JLEthRepository {
+    fun buildW3JLEth() : EthRepository {
         val web3j = Web3jFactory.build(if (networkProvider.isEmpty()) HttpService() else HttpService(networkProvider) )
-        return W3JLEth(web3j)
+        return EthService(web3j)
     }
 
 

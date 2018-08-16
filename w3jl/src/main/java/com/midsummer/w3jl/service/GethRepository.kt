@@ -11,7 +11,7 @@ import java.math.BigInteger
  * Ping me at nienbkict@gmail.com
  * Happy coding ^_^
  */
-interface W3JLGethRepository {
+interface GethRepository {
 
     fun createAccount(password: String) : Account
     fun importKeystore(store: String, password: String, newPassword: String): Account

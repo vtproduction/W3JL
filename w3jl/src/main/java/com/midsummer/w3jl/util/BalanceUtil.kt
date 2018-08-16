@@ -68,6 +68,21 @@ object BalanceUtil{
      */
     fun baseToSubunit(baseAmountStr: String, decimals: Int): BigInteger {
         assert(decimals >= 0)
+
+        val baseAmount = BigDecimal(baseAmountStr)
+        val subunitAmount = baseAmount.multiply(BigDecimal.valueOf(10).pow(decimals))
+        try {
+            return subunitAmount.toBigIntegerExact()
+        } catch (ex: ArithmeticException) {
+            assert(false)
+            return subunitAmount.toBigInteger()
+        }
+
+    }
+
+    fun baseToSubunit(baseAmountStr: Int, decimals: Int): BigInteger {
+        assert(decimals >= 0)
+
         val baseAmount = BigDecimal(baseAmountStr)
         val subunitAmount = baseAmount.multiply(BigDecimal.valueOf(10).pow(decimals))
         try {

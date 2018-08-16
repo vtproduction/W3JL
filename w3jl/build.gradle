@@ -39,4 +39,23 @@ dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.6"
     implementation 'io.reactivex.rxjava2:rxkotlin:2.2.0'
     implementation "org.ethereum:geth:1.7.0"
+
+
+    implementation "com.github.walleth.kethereum:functions:0.55"
+    implementation "com.github.walleth.kethereum:bip39:0.55"
+    implementation "com.github.walleth.kethereum:bip39_wordlist_en:0.55"
+    implementation "com.github.walleth.kethereum:bip44:0.55"
+    implementation "com.github.walleth.kethereum:erc55:0.55"
+    implementation "com.github.walleth.kethereum:eip155:0.55"
+    implementation "com.github.walleth.kethereum:erc681:0.55"
+    implementation "com.github.walleth.kethereum:keccak_shortcut:0.55"
+    implementation "com.github.walleth.kethereum:method_signatures:0.55"
+    implementation "com.github.walleth.kethereum:rlp:0.55"
+    implementation "com.github.walleth.kethereum:wallet:0.55"
+    implementation "com.github.walleth.kethereum:contract_abi_types:0.55"
+    implementation 'com.madgag.spongycastle:bcpkix-jdk15on:1.58.0.0'
+    implementation 'com.madgag.spongycastle:bcpg-jdk15on:1.58.0.0'
+
+    implementation group: 'org.bitcoinj', name: 'bitcoinj-core', version: '0.14.7'
+
 }

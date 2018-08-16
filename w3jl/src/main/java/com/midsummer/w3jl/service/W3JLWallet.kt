@@ -1,5 +1,6 @@
 package com.midsummer.w3jl.service
 
+import android.util.Base64
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.midsummer.w3jl.entity.W3JLBip39Wallet
@@ -103,6 +104,7 @@ class W3JLWallet(var filePath: File) : W3JLWalletRepository{
         return Single.create { emitter  ->
             try {
                 val seed = MnemonicUtils.generateSeed(mnemonics, password)
+                println("SEED: ${Base64.encodeToString(seed, Base64.DEFAULT)}")
                 val keyPair = ECKeyPair.create(Hash.sha256(seed))
                 val tmpWallet = Wallet.create(password, keyPair,PARAM_N,PARAM_P)
                 val wallet = W3JLWallet()
@@ -110,6 +112,7 @@ class W3JLWallet(var filePath: File) : W3JLWalletRepository{
                 wallet.source = W3JLWallet.Source.MNEMONIC
                 wallet.address = "0x${tmpWallet.address}"
                 wallet.privateKey = keyPair.privateKey.toString(RADIX)
+                wallet.publicKey = keyPair.publicKey.toString(RADIX)
                 wallet.jsonSource = objectMapper.writeValueAsString(tmpWallet)
                 wallet.createAt = Calendar.getInstance().timeInMillis
                 emitter.onSuccess(wallet)

@@ -22,13 +22,13 @@ class W3JLWallet {
     var address : String = ""
     var mnemonic : String = ""
     var privateKey : String = ""
+    var publicKey : String = ""
     var jsonSource : String = ""
     var createAt : Long = 0
 
 
-
     override fun toString(): String {
-        return "W3JLWallet(source=$source, address='$address', mnemonic='$mnemonic', privateKey='$privateKey', jsonSource='$jsonSource', createAt=$createAt)"
+        return "W3JLWallet(source=$source, address='$address', mnemonic='$mnemonic', privateKey='$privateKey', publicKey='$publicKey', jsonSource='$jsonSource', createAt=$createAt)"
     }
 
 

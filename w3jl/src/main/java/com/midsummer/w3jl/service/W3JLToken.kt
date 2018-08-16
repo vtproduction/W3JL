@@ -76,6 +76,7 @@ class W3JLToken(var web3j: Web3j, var context : Context) {
 
     private val GAS_PRICE = BigInteger.valueOf(20_000_000_000L)
     private val GAS_LIMIT = BigInteger.valueOf(4300000)
+
     fun createTokenTransfer(from : String,
                             to: String,
                             privateKey : String,
@@ -86,7 +87,7 @@ class W3JLToken(var web3j: Web3j, var context : Context) {
                 .ethGetTransactionCount(from, DefaultBlockParameterName.LATEST)
                 .sendAsync().get().transactionCount
         val signedMessage = W3JLGeth(web3j, context)
-                .signTransaction(from, privateKey, to, amount, GAS_PRICE, GAS_LIMIT, nonce.toLong(), data, 3)
+                .signTransaction(from, privateKey, contractAddress, BigInteger.valueOf(0), GAS_PRICE, GAS_LIMIT, nonce.toLong(), data, 3)
         return web3j
                 .ethSendRawTransaction(Numeric.toHexString(signedMessage))
                 .sendAsync().get().transactionHash

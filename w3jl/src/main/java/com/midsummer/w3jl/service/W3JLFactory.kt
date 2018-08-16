@@ -41,8 +41,9 @@ class W3JLFactory {
         return W3JLEth(web3j)
     }
 
-    fun buildTokenInfo() : TokenRepository {
-        val web3j = Web3jFactory.build(if (networkProvider.isEmpty()) HttpService() else HttpService(networkProvider) )
-        return TokenRepository(web3j)
+
+    fun buildW3JLToken() : W3JLToken {
+        var web3j = Web3jFactory.build(if (networkProvider.isEmpty()) HttpService() else HttpService(networkProvider) )
+        return W3JLToken(web3j, context)
     }
 }

@@ -3,8 +3,11 @@ package com.midsummer.w3jl.entity
 import android.os.Parcel
 import android.os.Parcelable
 
+
+import org.web3j.utils.Files.readString
+
 /**
- * Created by NienLe on 15,August,2018
+ * Created by NienLe on 15-Aug-18,August,2018
  * Midsummer.
  * Ping me at nienbkict@gmail.com
  * Happy coding ^_^
@@ -22,12 +25,18 @@ class W3JLTokenInfo() : Parcelable {
         decimals = parcel.readInt()
     }
 
-    override fun writeToParcel(p0: Parcel?, p1: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+
 
     override fun describeContents(): Int {
         return 0
+    }
+
+
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeString(address)
+        dest.writeString(name)
+        dest.writeString(symbol)
+        dest.writeInt(decimals)
     }
 
     companion object CREATOR : Parcelable.Creator<W3JLTokenInfo> {

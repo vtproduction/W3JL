@@ -1,6 +1,7 @@
 package com.midsummer.w3jl.erc20Contract
 
 import com.midsummer.w3jl.entity.W3JLTokenInfo
+import com.midsummer.w3jl.service.W3JLToken
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import org.ethereum.geth.Account

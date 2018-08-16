@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity() {
         val tokenRepository = W3JLFactory()
                 .withContext(this)
                 .withNetworkProvider("https://ropsten.infura.io/v3/95fa3a86534344ee9d1bf00e2b0d6d06")
-                .buildTokenInfo()
+                .buildW3JLToken()
 
         val balanceDecimal = tokenRepository.getBalance(tokenOwnerAddress, tokenInfo)
         Log.d(TAG,"getTokenBalace ${BalanceUtil.weiToEth(balanceDecimal!!, 3)}")

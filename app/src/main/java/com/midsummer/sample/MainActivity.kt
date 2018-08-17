@@ -10,6 +10,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.io.File
+import java.math.BigInteger
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
@@ -81,10 +82,31 @@ class MainActivity : AppCompatActivity() {
         val tokenRepository = W3JLFactory()
                 .withContext(this)
                 .withNetworkProvider("https://ropsten.infura.io/v3/95fa3a86534344ee9d1bf00e2b0d6d06")
+                .withTokenInfo(tokenInfo)
                 .buildW3JLToken()
 
-        val balanceDecimal = tokenRepository.getBalance(tokenOwnerAddress, tokenInfo)
-        Log.d(TAG,"getTokenBalace ${BalanceUtil.weiToEth(balanceDecimal!!, 3)}")
+        compositeDisposable.add(tokenRepository.getBalance(tokenOwnerAddress, tokenInfo)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .delay(5, TimeUnit.SECONDS)
+                .subscribe({
+                    Log.d(TAG,"balance: ${BalanceUtil.weiToEth(it, 3)}")
+                },{
+                    Log.d(TAG,"balance Error: ${it.localizedMessage}")
+                }))
+
+
+        compositeDisposable.add(tokenRepository.transferToken(tokenOwnerAddress, tokenTo,  tokenOwnerPrivateKey,
+                 BalanceUtil.baseToSubunit(50, 18), BigInteger.valueOf(20_000_000_000L), BigInteger.valueOf(4300000) )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .delay(5, TimeUnit.SECONDS)
+                .subscribe({
+                    Log.d(TAG,"balance: $it")
+                },{
+                    Log.d(TAG,"balance Error: ${it.localizedMessage}")
+                }))
+
 
 
 

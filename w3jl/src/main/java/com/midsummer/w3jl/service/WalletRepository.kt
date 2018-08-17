@@ -50,4 +50,5 @@ interface WalletRepository {
     fun createWalletFromPrivateKey(privateKey: String, password: String?) : Single<W3JLWallet>
     fun createWalletFromJsonString(jsonString: String, password: String?) : Single<W3JLWallet>
 
+
 }

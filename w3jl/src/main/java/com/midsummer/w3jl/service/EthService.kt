@@ -24,17 +24,18 @@ class EthService(var web3j: Web3j) : EthRepository{
 
     private val GAS_PRICE = BigInteger.valueOf(20_000_000_000L)
     private val GAS_LIMIT = BigInteger.valueOf(4300000)
+
     override fun getAccountBalance(address: String): Single<BigInteger> {
         return Single.create{ emitter ->
             try {
-                val function = balanceOf(wallet)
-                val responseValue = callSmartContractFunction(function, tokenInfo.address, wallet)
-                val response = FunctionReturnDecoder.decode(
-                        responseValue, function.outputParameters)
-                return if (response.size == 1) {
-                    BigDecimal((response[0] as Uint256).value)
-                } else {
-                    null
+                if(WalletUtils.isValidAddress(address)){
+                    emitter.onError(Exception("Invalid Address"))
+                }else{
+                    val ethGetBalance : EthGetBalance = web3j
+                            .ethGetBalance(address, DefaultBlockParameterName.LATEST)
+                            .sendAsync()
+                            .get()
+                    emitter.onSuccess(ethGetBalance.balance)
                 }
             }catch (e : Exception){
                 emitter.onError(e)

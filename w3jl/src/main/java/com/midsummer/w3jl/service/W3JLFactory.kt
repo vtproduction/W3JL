@@ -1,7 +1,7 @@
 package com.midsummer.w3jl.service
 
 import android.content.Context
-import com.midsummer.w3jl.erc20Contract.TokenRepository
+import com.midsummer.w3jl.entity.W3JLTokenInfo
 import org.web3j.protocol.Web3jFactory
 import org.web3j.protocol.http.HttpService
 import java.io.File
@@ -18,6 +18,7 @@ class W3JLFactory {
     private var keyStoreFilePath : String = "keystore"
     private var networkProvider : String = ""
     private lateinit var keyStoreFile: File
+    private lateinit var tokenInfo: W3JLTokenInfo
 
 
     fun withContext(context: Context) : W3JLFactory {
@@ -28,6 +29,11 @@ class W3JLFactory {
 
     fun withNetworkProvider(networkProvider : String) : W3JLFactory {
         this.networkProvider = networkProvider
+        return this
+    }
+
+    fun withTokenInfo(tokenInfo: W3JLTokenInfo) : W3JLFactory {
+        this.tokenInfo = tokenInfo
         return this
     }
 
@@ -42,8 +48,8 @@ class W3JLFactory {
     }
 
 
-    fun buildW3JLToken() : W3JLToken {
-        var web3j = Web3jFactory.build(if (networkProvider.isEmpty()) HttpService() else HttpService(networkProvider) )
-        return W3JLToken(web3j, context)
+    fun buildW3JLToken() : TokenService {
+        val web3j = Web3jFactory.build(if (networkProvider.isEmpty()) HttpService() else HttpService(networkProvider) )
+        return TokenService(context, web3j, tokenInfo)
     }
 }

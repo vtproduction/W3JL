@@ -16,7 +16,11 @@ import java.nio.charset.Charset
  * Ping me at nienbkict@gmail.com
  * Happy coding ^_^
  */
-class GethService(web3j: Web3j, context: Context) : GethRepository{
+
+/**
+ * Go Ethereum implementation
+ */
+class GethService(context: Context) : GethRepository{
     var keyStore: KeyStore
     private val N = 1 shl 9
     private val P = 1

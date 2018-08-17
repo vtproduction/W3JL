@@ -22,10 +22,16 @@ interface EthRepository {
     fun getAccountTransactionCount(address: String) : Single<BigInteger>
 
     @Throws(InterruptedException::class, ExecutionException::class, IOException::class, CipherException::class)
-    fun transfer(password: String, walletFile: File, from: String, to: String, amount: BigInteger): Single<String>
+    fun transfer(password: String, walletFile: File, to: String, amount: BigInteger): Single<String>
+
+    @Throws(InterruptedException::class, ExecutionException::class, IOException::class, CipherException::class)
+    fun transfer(password: String, walletFile: File, to: String, amount: BigInteger, gasPrice: BigInteger, gasLimit: BigInteger): Single<String>
 
     @Throws(InterruptedException::class, ExecutionException::class)
-    fun transfer(privateKey: String, from: String, to: String, amount: BigInteger): Single<String>
+    fun transfer(privateKey: String, to: String, amount: BigInteger): Single<String>
+
+    @Throws(InterruptedException::class, ExecutionException::class)
+    fun transfer(privateKey: String, to: String, amount: BigInteger, gasPrice: BigInteger, gasLimit: BigInteger): Single<String>
 
 
 }

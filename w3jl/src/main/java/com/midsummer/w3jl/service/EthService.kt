@@ -20,16 +20,27 @@ import java.math.BigInteger
  * Ping me at nienbkict@gmail.com
  * Happy coding ^_^
  */
+
+
 class EthService(var web3j: Web3j) : EthRepository{
 
+    //default gasPrice
     private val GAS_PRICE = BigInteger.valueOf(20_000_000_000L)
+
+    //default gasLimit
     private val GAS_LIMIT = BigInteger.valueOf(4300000)
 
+    /**
+     * get the Ether balance of given account
+     * @param address plain text of address
+     * @return raw number of account balance
+     */
     override fun getAccountBalance(address: String): Single<BigInteger> {
         return Single.create{ emitter ->
             try {
                 if(WalletUtils.isValidAddress(address)){
                     emitter.onError(Exception("Invalid Address"))
+                    return@create
                 }else{
                     val ethGetBalance : EthGetBalance = web3j
                             .ethGetBalance(address, DefaultBlockParameterName.LATEST)
@@ -43,11 +54,18 @@ class EthService(var web3j: Web3j) : EthRepository{
         }
     }
 
+    /**
+     * get the Ether balance of given account, return human-family format
+     * @param address plain text of address
+     * @param number number of chars that the result will return
+     * @return formatted value of account balance
+     */
     override fun getAccountBalance(address: String, number: Int): Single<String> {
         return Single.create{ emitter ->
             try {
                 if(WalletUtils.isValidAddress(address)){
                     emitter.onError(Exception("Invalid Address"))
+                    return@create
                 }else{
                     val ethGetBalance : EthGetBalance = web3j
                             .ethGetBalance(address, DefaultBlockParameterName.LATEST)
@@ -61,6 +79,11 @@ class EthService(var web3j: Web3j) : EthRepository{
         }
     }
 
+    /**
+     * get total numbers of transaction that made by the given account
+     * @param address plain text of address
+     * @return number of transactions
+     */
     override fun getAccountTransactionCount(address: String): Single<BigInteger> {
         return Single.create{ emitter ->
             try {
@@ -79,22 +102,35 @@ class EthService(var web3j: Web3j) : EthRepository{
         }
     }
 
-    override fun transfer(password: String, walletFile: File, from: String, to: String, amount: BigInteger): Single<String> {
+    /**
+     * Perform send Eth transaction
+     * @param privateKey: Wallet private key
+     * @param to: Address of receiver
+     * @param amount: number of ETH to be sent
+     * @param gasPrice: value of transaction gas price
+     * @param gasLimit: value of transaction gas limit
+     * @return the transaction Id
+     */
+    override fun transfer(privateKey: String,  to: String, amount: BigInteger, gasPrice: BigInteger, gasLimit: BigInteger): Single<String> {
         return Single.create{ emitter ->
             try {
-                val credentials = WalletUtils.loadCredentials(password, walletFile)
+                val credentials = Credentials.create(privateKey)
                 if (credentials == null){
                     emitter.onError(Exception("Invalid credential!"))
                     return@create
                 }
+                val from = credentials.address
                 val ethGetTransactionCount = web3j.ethGetTransactionCount(
                         from, DefaultBlockParameterName.LATEST).sendAsync().get()
+
                 val nonce = ethGetTransactionCount.transactionCount
-                //println(nonce)
+                println(nonce)
+
                 val rawTransaction = RawTransaction.createEtherTransaction(
-                        nonce, GAS_PRICE, GAS_LIMIT, to, amount)
+                        nonce, gasPrice, gasLimit, to, amount)
                 val signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials)
                 val hexValue = Numeric.toHexString(signedMessage)
+
                 val ethSendTransaction = web3j.ethSendRawTransaction(hexValue).sendAsync().get()
                 emitter.onSuccess(ethSendTransaction.transactionHash)
             }catch (e : Exception){
@@ -103,15 +139,25 @@ class EthService(var web3j: Web3j) : EthRepository{
         }
     }
 
-    override fun transfer(privateKey: String, from: String, to: String, amount: BigInteger): Single<String> {
+    /**
+     * Perform send Eth transaction
+     * @param password: Wallet encrypted password
+     * @param walletFile: The file that contain encrypted json data of wallet
+     * @param to: Address of receiver
+     * @param amount: number of ETH to be sent
+     * @param gasPrice: value of transaction gas price
+     * @param gasLimit: value of transaction gas limit
+     * @return the transaction Id
+     */
+    override fun transfer(password: String, walletFile: File,  to: String, amount: BigInteger, gasPrice: BigInteger, gasLimit: BigInteger): Single<String> {
         return Single.create{ emitter ->
             try {
-                val credentials = Credentials.create(privateKey)
+                val credentials = WalletUtils.loadCredentials(password, walletFile)
                 if (credentials == null){
                     emitter.onError(Exception("Invalid credential!"))
                     return@create
                 }
-
+                val from = credentials.address
                 val ethGetTransactionCount = web3j.ethGetTransactionCount(
                         from, DefaultBlockParameterName.LATEST).sendAsync().get()
 
@@ -119,7 +165,7 @@ class EthService(var web3j: Web3j) : EthRepository{
                 println(nonce)
 
                 val rawTransaction = RawTransaction.createEtherTransaction(
-                        nonce, GAS_PRICE, GAS_LIMIT, to, amount)
+                        nonce, gasPrice, gasLimit, to, amount)
                 val signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials)
                 val hexValue = Numeric.toHexString(signedMessage)
 
@@ -129,5 +175,19 @@ class EthService(var web3j: Web3j) : EthRepository{
                 emitter.onError(e)
             }
         }
+    }
+
+    /**
+     * Perform transfer with default gasPrice and gasLimit
+     */
+    override fun transfer(password: String, walletFile: File, to: String, amount: BigInteger): Single<String> {
+        return transfer(password, walletFile, to, amount, GAS_PRICE, GAS_LIMIT)
+    }
+
+    /**
+     * Perform transfer with default gasPrice and gasLimit
+     */
+    override fun transfer(privateKey: String, to: String, amount: BigInteger): Single<String> {
+        return transfer(privateKey, to, amount, GAS_PRICE, GAS_LIMIT)
     }
 }

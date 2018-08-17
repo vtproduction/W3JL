@@ -8,6 +8,11 @@ package com.midsummer.w3jl.entity
  * Ping me at nienbkict@gmail.com
  * Happy coding ^_^
  */
+
+
+/**
+ * Model object that hold basic information about a wallet
+ */
 class W3JLCredential(var address: String, var publicKey: String, var privateKey: String){
 
     override fun toString(): String {

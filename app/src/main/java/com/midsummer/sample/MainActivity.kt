@@ -34,8 +34,7 @@ class MainActivity : AppCompatActivity() {
 
 
         val w3JL = W3JLFactory()
-                .withContext(this)
-                .buildW3JL()
+                .buildW3JLWallet()
 
         /*val kethe = TestKethe()
         Log.d(TAG, "kethe key: ${kethe.createPrivateKey(mnemonic)}")*/
@@ -44,7 +43,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        compositeDisposable.add(w3JL.createHDWalletFromMnemonic(mnemonic)
+        compositeDisposable.add(w3JL.createWalletFromMnemonic(mnemonic, "niendeptrai")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .delay(5, TimeUnit.SECONDS)
@@ -96,7 +95,7 @@ class MainActivity : AppCompatActivity() {
                 }))
 
 
-        compositeDisposable.add(tokenRepository.transferToken(tokenOwnerAddress, tokenTo,  tokenOwnerPrivateKey,
+        /*compositeDisposable.add(tokenRepository.transferToken(tokenOwnerAddress, tokenTo,  tokenOwnerPrivateKey,
                  BalanceUtil.baseToSubunit(50, 18), BigInteger.valueOf(20_000_000_000L), BigInteger.valueOf(4300000) )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -105,7 +104,7 @@ class MainActivity : AppCompatActivity() {
                     Log.d(TAG,"balance: $it")
                 },{
                     Log.d(TAG,"balance Error: ${it.localizedMessage}")
-                }))
+                }))*/
 
 
 

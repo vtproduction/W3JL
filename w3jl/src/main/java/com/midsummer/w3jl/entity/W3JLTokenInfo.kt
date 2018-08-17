@@ -12,6 +12,15 @@ import org.web3j.utils.Files.readString
  * Ping me at nienbkict@gmail.com
  * Happy coding ^_^
  */
+
+/**
+ * @see <a href="https://medium.com/@jgm.orinoco/understanding-erc-20-token-contracts-a809a7310aa5"/>
+ * Basic info about ERC20 Token
+ * - The address is the smartContract address
+ * - Name: The name of Token, for example, MIDAS
+ * - Symbol: The symbol of Token, for example, MAS. Symbol should not exceed 4 chars, and should be all capitalized
+ * - decimals: refers to how divisible a token can be, from 0 (not at all divisible) to 18 (pretty much continuous). With ERC20,the decimals is 18
+ */
 class W3JLTokenInfo() : Parcelable {
     var address: String = ""
     var name: String = ""
